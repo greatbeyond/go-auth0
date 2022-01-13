@@ -70,6 +70,13 @@ func (j *JWKClient) GetKey(ID string) (jose.JSONWebKey, error) {
 		if err != nil {
 			return jose.JSONWebKey{}, err
 		}
+
+		// If there is only one key, and the ID in the jwt header doesn't have a kid set
+		// use the key that was found.
+		if len(keys) == 1 && ID == "" {
+			ID = keys[0].KeyID
+		}
+
 		addedKey, err := j.keyCacher.Add(ID, keys)
 		if err != nil {
 			return jose.JSONWebKey{}, err
